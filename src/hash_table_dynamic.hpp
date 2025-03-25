@@ -86,9 +86,9 @@ inline HashTable::HashTable(const size_t table_size,
 
 inline HashTable::~HashTable() {
     for (size_t i = 0; i < size; ++i) {
-        Item* current = items[i];
+        const Item* current = items[i];
         while (current) {
-            Item* temp = current;
+            const Item* temp = current;
             current = current->next;
             delete temp;
         }
@@ -109,11 +109,11 @@ inline HashTable::Item* HashTable::newItem(const void* key, const size_t key_siz
 
 template <typename K, typename V>
 void HashTable::insert(const K& key, const V& value) {
-    size_t key_size = sizeof(K);
-    size_t value_size = sizeof(V);
+    const size_t key_size = sizeof(K);
+    const size_t value_size = sizeof(V);
 
-    unsigned long index = hash_function(&key, key_size, size);
-    Item* current = items[index];
+    const unsigned long index = hash_function(&key, key_size, size);
+    const Item* current = items[index];
 
     while (current != nullptr) {
         if (key_compare(current->key.get(), &key, key_size) == 0) {
@@ -131,11 +131,11 @@ void HashTable::insert(const K& key, const V& value) {
 
 template <typename K, typename V>
 V& HashTable::operator[](const K& key) {
-    size_t key_size = sizeof(K);
-    size_t value_size = sizeof(V);
+    const size_t key_size = sizeof(K);
+    const size_t value_size = sizeof(V);
 
-    unsigned long index = hash_function(&key, key_size, size);
-    Item* current = items[index];
+    const unsigned long index = hash_function(&key, key_size, size);
+    const Item* current = items[index];
 
     while (current != nullptr) {
         if (key_compare(current->key.get(), &key, key_size) == 0) {
@@ -155,9 +155,9 @@ V& HashTable::operator[](const K& key) {
 
 template <typename K>
 void* HashTable::search(const K& key) {
-    size_t key_size = sizeof(K);
-    unsigned long index = hash_function(&key, key_size, size);
-    Item* current = items[index];
+    const size_t key_size = sizeof(K);
+    const unsigned long index = hash_function(&key, key_size, size);
+    const Item* current = items[index];
 
     while (current != nullptr) {
         if (key_compare(current->key.get(), &key, key_size) == 0) {
@@ -171,13 +171,13 @@ void* HashTable::search(const K& key) {
 
 template <typename K>
 void HashTable::deleteKey(const K& key) {
-    size_t key_size = sizeof(K);
-    unsigned long index = hash_function(&key, key_size, size);
+    const size_t key_size = sizeof(K);
+    const unsigned long index = hash_function(&key, key_size, size);
     Item** current = &items[index];
 
     while (*current != nullptr) {
         if (key_compare((*current)->key.get(), &key, key_size) == 0) {
-            Item* temp = *current;
+            const Item* temp = *current;
             *current = (*current)->next;
             delete temp;
             --count;
@@ -189,7 +189,7 @@ void HashTable::deleteKey(const K& key) {
 
 inline void HashTable::print() const {
     for (size_t i = 0; i < size; ++i) {
-        Item* current = items[i];
+        const Item* current = items[i];
         while (current) {
             std::cout << "Key: " << *static_cast<std::string *>(current->key.get())
                       << " Value: " << *static_cast<int *>(current->value.get()) << std::endl;
