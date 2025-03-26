@@ -5,10 +5,10 @@
 #include <string>
 
 template <typename K>
-struct CustomHash {
+struct Hash {
     size_t operator()(const K& key) const {
         size_t hash = 0;
-        const char* data = reinterpret_cast<const char*>(&key);
+        auto data = reinterpret_cast<const char*>(&key);
         for (size_t i = 0; i < sizeof(K); ++i) {
             hash = hash * 31 + data[i];
         }
@@ -17,7 +17,7 @@ struct CustomHash {
 };
 
 template <>
-struct CustomHash<std::string> {
+struct Hash<std::string> {
     size_t operator()(const std::string& key) const {
         size_t hash = 0;
         for (char ch : key) {
@@ -28,7 +28,7 @@ struct CustomHash<std::string> {
 };
 
 template <typename K, typename V>
-class HashTableFixed {
+class HashTable {
 private:
     struct Item {
         K key;
@@ -41,15 +41,15 @@ private:
     size_t capacity;
 
     size_t hash(const K& key) const {
-        return CustomHash<K>{}(key) % capacity;
+        return Hash<K>{}(key) % capacity;
     }
 
 public:
-    explicit HashTableFixed(const size_t capacity = 100) : size(0), capacity(capacity) {
+    explicit HashTable(const size_t capacity = 100) : size(0), capacity(capacity) {
         items = new Item*[capacity]();
     }
 
-    ~HashTableFixed() {
+    ~HashTable() {
         for (size_t i = 0; i < capacity; ++i) {
             if (items[i]) {
                 delete items[i];
@@ -58,7 +58,7 @@ public:
         delete[] items;
     }
 
-    void hashTableInsert(const K& key, const V& value) {
+    void Insert(const K& key, const V& value) {
         size_t index = hash(key);
         while (items[index]) {
             if (items[index]->key == key) {
@@ -71,7 +71,18 @@ public:
         ++size;
     }
 
-    V* hashTableSearch(const K& key) {
+    bool Contains(const K& key) const {
+        size_t index = hash(key);
+        while (items[index]) {
+            if (items[index]->key == key) {
+                return true;
+            }
+            index = (index + 1) % capacity;
+        }
+        return false;
+    }
+
+    V* Search(const K& key) {
         size_t index = hash(key);
         while (items[index]) {
             if (items[index]->key == key) {
@@ -82,7 +93,7 @@ public:
         return nullptr;
     }
 
-    void hashTableDelete(const K& key) {
+    void Delete(const K& key) {
         size_t index = hash(key);
         while (items[index]) {
             if (items[index]->key == key) {
@@ -93,6 +104,20 @@ public:
             }
             index = (index + 1) % capacity;
         }
+    }
+
+    V& operator[](const K& key) {
+        size_t index = hash(key);
+        while (items[index]) {
+            if (items[index]->key == key) {
+                return items[index]->value;
+            }
+            index = (index + 1) % capacity;
+        }
+
+        items[index] = new Item(key, V{});
+        ++size;
+        return items[index]->value;
     }
 };
 

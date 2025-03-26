@@ -6,6 +6,5 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(src)
 
 add_executable(Hash_Table_From_Scratch_Cpp
-    src/hash_table_dynamic.hpp
-    src/hash_table_fixed.hpp
+        src/hash_table.hpp
     src/main.cpp)

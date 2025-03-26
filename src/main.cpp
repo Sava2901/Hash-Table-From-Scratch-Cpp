@@ -1,64 +1,70 @@
+#include "hash_table.hpp"
 #include <iostream>
-#include <utility>
-#include "hash_table_fixed.hpp"
-#include "hash_table_dynamic.hpp"
+#include <string>
 
-struct Student {
+struct Person {
     std::string name;
     int age;
-    Student(std::string n, int a) : name(std::move(n)), age(a) {}
-    void print() const {
-        std::cout << "Name: " << name << ", Age: " << age << std::endl;
+
+    bool operator==(const Person& other) const {
+        return name == other.name && age == other.age;
     }
 };
 
 int main() {
-    std::cout << "Testing Fixed-Type Hash Table:" << std::endl;
-    HashTableFixed<int, Student> fixedTable(10);
+    HashTable<std::string, int> fruitTable;
 
-    fixedTable.hashTableInsert(1, Student("Alice", 20));
-    fixedTable.hashTableInsert(2, Student("Bob", 22));
+    fruitTable["apple"] = 99;
+    std::cout << fruitTable["apple"] << std::endl;
 
-    Student* student1 = fixedTable.hashTableSearch(1);
-    if (student1) student1->print();
+    fruitTable.Insert("apple", 1);
+    std::cout << fruitTable["apple"] << std::endl;
 
-    fixedTable.hashTableDelete(1);
-    student1 = fixedTable.hashTableSearch(1);
-    if (!student1) std::cout << "Student with key 1 not found!" << std::endl;
+    fruitTable.Insert("banana", 2);
+    fruitTable.Insert("orange", 3);
 
-    std::cout << std::endl;
+    std::cout << "apple: " << fruitTable["apple"] << std::endl;
+    std::cout << "banana: " << fruitTable["banana"] << std::endl;
+    std::cout << "orange: " << fruitTable["orange"] << std::endl;
+    std::cout << "berry: " << fruitTable["berry"] << std::endl;
 
-    std::cout << "Testing Dynamic-Type Hash Table:" << std::endl;
-    HashTable ht(10);
-
-    std::string key1 = "apple";
-    int value1 = 42;
-    ht.insert(key1, value1);
-
-    std::string key2 = "banana";
-    int value2 = 100;
-    ht.insert(key2, value2);
-
-    auto retrieved_value1 = static_cast<int*>(ht.search(key1));
-    if (retrieved_value1) {
-        std::cout << "Found value for 'apple': " << *retrieved_value1 << std::endl;
+    if (fruitTable.Contains("banana")) {
+        std::cout << "banana is present in the table." << std::endl;
     }
 
-    ht.deleteKey(key1);
-
-    retrieved_value1 = static_cast<int*>(ht.search(key1));
-    if (!retrieved_value1) {
-        std::cout << "'apple' not found after deletion." << std::endl;
+    fruitTable.Delete("apple");
+    if (!fruitTable.Contains("apple")) {
+        std::cout << "apple was removed from the table." << std::endl;
     }
 
-    HashTable table(100);
+    HashTable<int, Person> idTable;
+    idTable.Insert(1, Person{"Alice", 30});
+    idTable.Insert(2, Person{"Bob", 25});
 
-    table.insert(1, "One");
-    table.insert(2, "Two");
+    idTable[3] = Person{"Charlie", 22};
 
-    // table[3] = "Three";
-    // std::cout << table[1] << std::endl;
-    // std::cout << table[3] << std::endl;
+    std::cout << "ID 1: " << idTable[1].name << ", " << idTable[1].age << std::endl;
+    std::cout << "ID 2: " << idTable[2].name << ", " << idTable[2].age << std::endl;
+    std::cout << "ID 3: " << idTable[3].name << ", " << idTable[3].age << std::endl;
+
+    Person* person1 = idTable.Search(2);
+    if (person1) {
+        std::cout << "Found person with ID 2: " << person1->name << ", " << person1->age << std::endl;
+    }
+
+    Person* person2 = &idTable[3];
+    if (person2) {
+        std::cout << "Found person with ID 3: " << person2->name << ", " << person2->age << std::endl;
+    }
+
+    if (idTable.Contains(1)) {
+        std::cout << "Person with ID 1 exists in the table." << std::endl;
+    }
+
+    HashTable<int, std::string> table;
+    table[1] = "first";
+    std::cout << table[1] << std::endl;
+    std::cout << table[2] << std::endl;
 
     return 0;
 }
