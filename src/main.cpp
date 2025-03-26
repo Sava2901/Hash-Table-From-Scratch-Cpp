@@ -1,70 +1,45 @@
-#include "hash_table.hpp"
 #include <iostream>
 #include <string>
+#include "hash_table_dynamic.hpp"
+#include "hash_table_fixed.hpp"
 
-struct Person {
-    std::string name;
-    int age;
-
-    bool operator==(const Person& other) const {
-        return name == other.name && age == other.age;
-    }
+struct Student {
+    int id;
+    double score;
+    char name[20];
 };
 
 int main() {
-    HashTable<std::string, int> fruitTable;
+    HashTable dynamicTable(53);
+    int intKey = 42;
+    auto strKey = "dynamic";
+    Student student{101, 95.5, "Alice"};
+    float floatValue = 3.14f;
 
-    fruitTable["apple"] = 99;
-    std::cout << fruitTable["apple"] << std::endl;
+    dynamicTable[&intKey] = &student;
+    dynamicTable[&strKey] = &floatValue;
 
-    fruitTable.Insert("apple", 1);
-    std::cout << fruitTable["apple"] << std::endl;
+    Student* s = dynamicTable[&intKey];
+    if(s) std::cout << "Dynamic Student: " << s->name << " ID: " << s->id << "\n";
+    float* f = dynamicTable[&strKey];
+    if(f) std::cout << "Dynamic Float: " << *f << "\n";
 
-    fruitTable.Insert("banana", 2);
-    fruitTable.Insert("orange", 3);
 
-    std::cout << "apple: " << fruitTable["apple"] << std::endl;
-    std::cout << "banana: " << fruitTable["banana"] << std::endl;
-    std::cout << "orange: " << fruitTable["orange"] << std::endl;
-    std::cout << "berry: " << fruitTable["berry"] << std::endl;
 
-    if (fruitTable.Contains("banana")) {
-        std::cout << "banana is present in the table." << std::endl;
-    }
+    HashTableFixed<std::string, int> fixedTable;
+    fixedTable.Insert("Alice", 90);
+    fixedTable.Insert("Bob", 85);
+    fixedTable["Charlie"] = 95;
 
-    fruitTable.Delete("apple");
-    if (!fruitTable.Contains("apple")) {
-        std::cout << "apple was removed from the table." << std::endl;
-    }
+    std::cout << "Alice: " << *fixedTable.Search("Alice") << "\n";
+    std::cout << "Bob: " << fixedTable["Bob"] << "\n";
+    std::cout << "Charlie: " << fixedTable["Charlie"] << "\n";
 
-    HashTable<int, Person> idTable;
-    idTable.Insert(1, Person{"Alice", 30});
-    idTable.Insert(2, Person{"Bob", 25});
+    fixedTable.Delete("Bob");
+    if(!fixedTable.Contains("Bob")) std::cout << "Bob deleted\n";
 
-    idTable[3] = Person{"Charlie", 22};
-
-    std::cout << "ID 1: " << idTable[1].name << ", " << idTable[1].age << std::endl;
-    std::cout << "ID 2: " << idTable[2].name << ", " << idTable[2].age << std::endl;
-    std::cout << "ID 3: " << idTable[3].name << ", " << idTable[3].age << std::endl;
-
-    Person* person1 = idTable.Search(2);
-    if (person1) {
-        std::cout << "Found person with ID 2: " << person1->name << ", " << person1->age << std::endl;
-    }
-
-    Person* person2 = &idTable[3];
-    if (person2) {
-        std::cout << "Found person with ID 3: " << person2->name << ", " << person2->age << std::endl;
-    }
-
-    if (idTable.Contains(1)) {
-        std::cout << "Person with ID 1 exists in the table." << std::endl;
-    }
-
-    HashTable<int, std::string> table;
-    table[1] = "first";
-    std::cout << table[1] << std::endl;
-    std::cout << table[2] << std::endl;
+    fixedTable["Alice"] = 100;
+    std::cout << "Updated Alice: " << fixedTable["Alice"] << "\n";
 
     return 0;
 }

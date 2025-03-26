@@ -28,7 +28,7 @@ struct Hash<std::string> {
 };
 
 template <typename K, typename V>
-class HashTable {
+class HashTableFixed {
 private:
     struct Item {
         K key;
@@ -45,11 +45,11 @@ private:
     }
 
 public:
-    explicit HashTable(const size_t capacity = 100) : size(0), capacity(capacity) {
+    explicit HashTableFixed(const size_t capacity = 100) : size(0), capacity(capacity) {
         items = new Item*[capacity]();
     }
 
-    ~HashTable() {
+    ~HashTableFixed() {
         for (size_t i = 0; i < capacity; ++i) {
             if (items[i]) {
                 delete items[i];
