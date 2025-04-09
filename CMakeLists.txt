@@ -7,4 +7,6 @@ include_directories(src)
 
 add_executable(Hash_Table_From_Scratch_Cpp
         src/hash_table_fixed.hpp
-    src/main.cpp)
+    src/main.cpp
+    src/MurmurHash3.h
+    src/MurmurHash3.cpp)

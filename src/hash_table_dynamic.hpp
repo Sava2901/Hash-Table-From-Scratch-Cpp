@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <cstring>
+#include <cstdint>
+
+#include "MurmurHash3.h"
 
 class HashTable {
 private:
@@ -14,7 +17,7 @@ private:
         Item* next;
 
         Item(const void* k, size_t ks, const void* v, size_t vs)
-            : key_size(ks), value_size(vs), next(nullptr) {
+                : key_size(ks), value_size(vs), next(nullptr) {
             key = new char[ks];
             std::memcpy(key, k, ks);
             value = new char[vs];
@@ -54,12 +57,19 @@ private:
     HashFunction hash_function;
     KeyCompareFunction key_compare;
 
+//    static unsigned long defaultHashFunction(const void* key, size_t key_size, int size) {
+//    const auto* data = static_cast<const unsigned char*>(key);
+//    unsigned long hash = 5381;
+//    for (size_t i = 0; i < key_size; ++i) {
+//        hash = (hash << 5) + hash + data[i];
+//    }
+//    return hash % size;
+//}
+
     static unsigned long defaultHashFunction(const void* key, size_t key_size, int size) {
-        const auto* data = static_cast<const unsigned char*>(key);
-        unsigned long hash = 5381;
-        for (size_t i = 0; i < key_size; ++i) {
-            hash = (hash << 5) + hash + data[i];
-        }
+        uint32_t hash;
+        const uint32_t seed = 42;
+        MurmurHash3_x86_32(key, static_cast<int>(key_size), seed, &hash);
         return hash % size;
     }
 
@@ -104,9 +114,9 @@ private:
 
 public:
     explicit HashTable(int size, HashFunction hf = nullptr, KeyCompareFunction kc = nullptr)
-        : table_size(size), items(size, nullptr),
-          hash_function(hf ? hf : defaultHashFunction),
-          key_compare(kc ? kc : defaultKeyCompare) {}
+            : table_size(size), items(size, nullptr),
+              hash_function(hf ? hf : defaultHashFunction),
+              key_compare(kc ? kc : defaultKeyCompare) {}
 
     ~HashTable() {
         for (auto& bucket : items) {
